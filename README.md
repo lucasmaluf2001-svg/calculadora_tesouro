@@ -102,24 +102,55 @@ O resultado será:
 
 Observação: o executável Windows deve ser compilado no próprio Windows. PyInstaller não gera um `.exe` Windows de forma nativa a partir de Linux/macOS.
 
-## Publicar gratuitamente no Render
+## Publicar gratuitamente sem servidor
 
-O projeto inclui um `render.yaml` pronto para criar um Web Service gratuito,
-com HTTPS, URL `onrender.com`, health check e deploy automático a cada push.
+Em produção, o projeto funciona como um site estático. O navegador executa os
+cálculos e lê somente dois arquivos publicados:
 
-1. Envie esta pasta para um repositório no GitHub, GitLab ou Bitbucket.
-2. No painel do Render, escolha **New > Blueprint**.
-3. Conecte o repositório e confirme a criação do serviço.
-4. Ao terminar o build, abra a URL exibida pelo Render.
+- `index.html`;
+- `calc_snapshot2.json`.
 
-O plano gratuito hiberna depois de um período sem visitas. O próximo acesso pode
-demorar cerca de um minuto. A página sobe imediatamente com o snapshot incluído;
-a atualização das fontes oficiais ocorre em segundo plano e depois a cada 6 horas.
+O GitHub Actions atualiza o JSON diariamente, às 19:37 no horário de Brasília.
+Se a fonte oficial falhar ou ainda não tiver dados novos, a versão publicada
+anterior continua no ar.
 
-Não é necessário configurar banco de dados, volume persistente ou variável secreta.
-Se o contêiner reiniciar, o snapshot incluído é restaurado e atualizado novamente.
+### 1. Enviar o repositório ao GitHub
 
-Para executar manualmente em outro provedor:
+Crie um repositório vazio e execute nesta pasta:
+
+```bash
+git remote add origin URL_DO_REPOSITORIO
+git push -u origin main
+```
+
+Na página do repositório, abra **Actions**, selecione **Atualizar dados do
+Tesouro** e use **Run workflow** para testar a primeira atualização manual.
+
+### 2. Criar o projeto no Cloudflare Pages
+
+1. Abra **Workers & Pages** no painel da Cloudflare.
+2. Escolha **Create application > Pages > Connect to Git**.
+3. Conecte o repositório e use a branch `main`.
+4. Configure o comando de build como `python build_static.py`.
+5. Configure o diretório de saída como `public`.
+6. Salve e aguarde o primeiro deploy.
+
+O endereço gratuito será semelhante a `carteira-tesouro.pages.dev`. Um domínio
+próprio pode ser conectado depois, mas não é obrigatório.
+
+Não configure Pages Functions, banco de dados, servidor, volume ou variáveis
+secretas. Cada alteração na branch `main`, inclusive a atualização diária do
+snapshot, gera uma nova publicação estática automaticamente.
+
+### Gerar a versão estática localmente
+
+```bash
+python build_static.py
+```
+
+O conteúdo pronto para publicação será criado na pasta `public`.
+
+O backend FastAPI continua disponível apenas para execução local:
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000

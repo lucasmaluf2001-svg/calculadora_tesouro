@@ -25,9 +25,9 @@ def validate_snapshot(path: Path) -> None:
 def build_static_site() -> Path:
     validate_snapshot(SNAPSHOT_PATH)
 
-    if OUTPUT_DIR.exists():
-        shutil.rmtree(OUTPUT_DIR)
-    shutil.copytree(STATIC_DIR, OUTPUT_DIR)
+    # dirs_exist_ok evita falhas do OneDrive ao tentar remover e recriar a
+    # pasta inteira. Os arquivos publicados são sobrescritos de forma idempotente.
+    shutil.copytree(STATIC_DIR, OUTPUT_DIR, dirs_exist_ok=True)
     shutil.copy2(SNAPSHOT_PATH, OUTPUT_DIR / "calc_snapshot2.json")
     return OUTPUT_DIR
 

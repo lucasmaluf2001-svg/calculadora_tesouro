@@ -132,8 +132,12 @@ Tesouro** e use **Run workflow** para testar a primeira atualização manual.
 2. Escolha **Create application > Pages > Connect to Git**.
 3. Conecte o repositório e use a branch `main`.
 4. Configure o comando de build como `python build_static.py`.
-5. Configure o diretório de saída como `public`.
+5. Se a tela mostrar **Deploy command**, use `npx wrangler deploy`.
 6. Salve e aguarde o primeiro deploy.
+
+O arquivo `wrangler.jsonc` informa ao Workers Builds que este é um site de
+arquivos estáticos e que a saída fica em `public`. O nome configurado deve ser
+`calculadora-tesouro`, igual ao nome do Worker criado no painel.
 
 O endereço gratuito será semelhante a `carteira-tesouro.pages.dev`. Um domínio
 próprio pode ser conectado depois, mas não é obrigatório.
